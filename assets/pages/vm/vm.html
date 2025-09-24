@@ -120,27 +120,39 @@
 
   <iframe id="vmFrame" src="" title="VM Display Frame" aria-live="polite"></iframe>
 
-  <script>
-    const selector = document.getElementById('selector');
-    const vmFrame = document.getElementById('vmFrame');
-    const chromeBtn = document.getElementById('chromeBtn');
-    const androidBtn = document.getElementById('androidBtn');
+<script>
+  const selector = document.getElementById('selector');
+  const vmFrame  = document.getElementById('vmFrame');
+  const chromeBtn = document.getElementById('chromeBtn');
+  const androidBtn = document.getElementById('androidBtn');
 
-    function shrinkSelector() {
-      selector.classList.remove('fullscreen');
-      selector.classList.add('shrunk');
-    }
+  function shrinkSelector() {
+    selector.classList.remove('fullscreen');
+    selector.classList.add('shrunk');
+  }
 
-    chromeBtn.addEventListener('click', () => {
-      shrinkSelector();
-      vmFrame.src = '../vm/chrome.html';
-    });
+  // Optional: give the iframe permissions Appetize may use
+  function setAppetizePermissions() {
+    vmFrame.setAttribute('allow',
+      'autoplay; clipboard-read; clipboard-write; geolocation; microphone; camera; fullscreen');
+    vmFrame.setAttribute('allowfullscreen', 'true');
+  }
 
-    androidBtn.addEventListener('click', () => {
-      shrinkSelector();
-      vmFrame.src = '../../../s/embed.html#https://appetize.io/embed/b_lpyv3tojqolercnfjmqqvgjqja';
-    });
-  </script>
+  chromeBtn.addEventListener('click', () => {
+    shrinkSelector();
+    // vm.html is in assets/pages/vm/ → chrome.html is the same folder
+    vmFrame.src = './chrome.html'; // (or just 'chrome.html')
+  });
+
+  androidBtn.addEventListener('click', () => {
+    shrinkSelector();
+    setAppetizePermissions();
+    // ❌ was: '../../../s/embed.html#https://appetize.io/embed/<key>'
+    // ✅ use Appetize directly (replace YOUR_PUBLIC_KEY and params as needed)
+    vmFrame.src = 'https://appetize.io/embed/YOUR_PUBLIC_KEY'
+      + '?device=pixel7&osVersion=13.0&scale=75&autoplay=true&orientation=portrait';
+  });
+</script>
 
 </body>
 </html>
