@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZXS MOVIES</title>
+  <title>BLUMOVIES</title>
   <style>
     body {
       margin: 0;
@@ -157,7 +157,7 @@
   </style>
 </head>
 <body>
-  <header>ZXS MOVIES</header>
+  <header>BLUMOVIES</header>
 
   <div class="search-bar">
     <input type="text" id="searchQuery" placeholder="Search movies or TV shows...">
@@ -207,13 +207,79 @@
       container.appendChild(div);
     }
 
-    function playMedia(id, type) {
-      const player = document.getElementById('player');
-      const container = document.getElementById('playerContainer');
-      player.src =
-        `https://player.vidify.top/embed/${type}/${id}?autoplay=true&poster=true&chromecast=true&servericon=true&setting=true&pip=true&download=true&logourl=https%3A%2F%2Fzxs.netlify.app%2Fassets%2Fimages%2Flogostar.png&font=Roboto&fontcolor=00ff88&fontsize=18&opacity=0.6&primarycolor=00ff88&secondarycolor=0d0d0d&iconcolor=ffffff`;
-      container.style.display = "flex";
+    async function playMedia(id, type) {
+  const kind = (type || '').toLowerCase();
+  const player = document.getElementById('player');
+  const container = document.getElementById('playerContainer');
+
+  const qp = 'autoplay=true&poster=true&chromecast=true&servericon=true&setting=true&pip=true&download=true&logourl=https%3A%2F%2Fzxs.netlify.app%2Fassets%2Fimages%2Flogostar.png&font=Roboto&fontcolor=00ff88&fontsize=18&opacity=0.6&primarycolor=00ff88&secondarycolor=0d0d0d&iconcolor=ffffff';
+
+  // Movies → same as before
+  if (kind === 'movie') {
+    player.src = `https://player.vidify.top/embed/movie/${id}?${qp}`;
+    container.style.display = "flex";
+    return;
+  }
+
+  // Ignore non-playable things like 'person'
+  if (kind !== 'tv') return;
+
+  try {
+    // 1) Get seasons for this show
+    const tv = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json());
+    const seasons = (tv.seasons || [])
+      .filter(s => Number(s.season_number) >= 1)
+      .sort((a,b) => a.season_number - b.season_number);
+
+    if (!seasons.length) {
+      alert('No seasons found for this show.');
+      return;
     }
+
+    const seasonList = seasons.map(s => s.season_number);
+    const defaultSeason = seasonList[0];
+
+    // 2) Ask for season
+    let seasonNumStr = prompt(`Season? Available: ${seasonList.join(', ')}  (default ${defaultSeason})`, String(defaultSeason));
+    if (seasonNumStr === null) return; // canceled
+    let seasonNum = Number(seasonNumStr);
+    if (!seasonList.includes(seasonNum)) {
+      alert('Invalid season number.');
+      return;
+    }
+
+    // 3) Fetch episodes for chosen season
+    const seasonData = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${seasonNum}?api_key=${apiKey}`).then(r => r.json());
+    const episodes = (seasonData.episodes || [])
+      .filter(e => typeof e.episode_number === 'number')
+      .sort((a,b) => a.episode_number - b.episode_number);
+
+    if (!episodes.length) {
+      alert(`No episodes found in Season ${seasonNum}.`);
+      return;
+    }
+
+    const episodeList = episodes.map(e => e.episode_number);
+    const defaultEpisode = episodeList[0];
+
+    // 4) Ask for episode
+    let episodeNumStr = prompt(`Episode? Available: ${episodeList.join(', ')}  (default ${defaultEpisode})`, String(defaultEpisode));
+    if (episodeNumStr === null) return; // canceled
+    let episodeNum = Number(episodeNumStr);
+    if (!episodeList.includes(episodeNum)) {
+      alert('Invalid episode number.');
+      return;
+    }
+
+    // 5) Play it
+    player.src = `https://player.vidify.top/embed/tv/${id}/${seasonNum}/${episodeNum}?${qp}`;
+    container.style.display = "flex";
+  } catch (err) {
+    console.warn('TV picker failed:', err);
+    alert('Could not load seasons/episodes for this show.');
+  }
+}
+
 
     document.getElementById('closePlayer').onclick = () => {
       document.getElementById('playerContainer').style.display = "none";
