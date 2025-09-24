@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        body {
+            background: #0d0d0d;
+            color: #a8f0a5; /* pastel green */
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .loader {
+            width: 70px;
+            height: 70px;
+            border: 6px solid rgba(168, 240, 165, 0.2);
+            border-top: 6px solid #a8f0a5;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-top: 18px;
+            color: #c3f7c0;
+            animation: fade 2s ease-in-out infinite;
+        }
+        @keyframes fade {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .tips {
+            margin-top: 8px;
+            font-size: 1rem;
+            color: #a8f0a580;
+            text-align: center;
+        }
+    </style>
+    <script src="uv/uv.bundle.js" defer></script>
+    <script src="uv/uv.config.js" defer></script>
+    <script src="register-sw.js" defer></script>
+    <script src="embed.js" defer></script>
+</head>
+<body>
+    <div class="loader"></div>
+    <div class="loading-text">Loading...</div>
+    <div class="tips">Please wait a moment.</div>
+</body>
+</html>

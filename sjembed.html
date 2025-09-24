@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJ zxs</title>
+  <style>
+    :root {
+      --bg: #0e1b14;
+      --secondary-bg: #1a2f25;
+      --third-bg: #244f36;
+      --fourth-bg: #1a3a2a;
+      --primary: #69c27a;
+      --secondary: #58b075;
+      --text-color: #e6f7ea;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--text-color);
+      background: linear-gradient(135deg, var(--bg) 0%, var(--secondary-bg) 40%, var(--third-bg) 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 30s ease infinite;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .browser-container {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .iframe-container {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+      background: #fff;
+      animation: fadeIn 0.5s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/dreamland"></script>
+  <script src="/baremux/index.js"></script>
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/scram/scramjet.wasm.wasm"></script>
+  <script src="/assets/config.js"></script>
+
+  <script>
+    const { ScramjetController } = $scramjetLoadController();
+
+    const scramjet = new ScramjetController({
+      files: {
+        wasm: "/scram/scramjet.wasm.wasm",
+        all: "/scram/scramjet.all.js",
+        sync: "/scram/scramjet.sync.js",
+      },
+    });
+
+    scramjet.init();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
+    const store = {
+      wispurl: localStorage.getItem("proxServer") || "wss://gointospace.app/wisp/",
+      bareurl:
+        _CONFIG?.bareurl ||
+        (location.protocol === "https:" ? "https" : "http") +
+        "://" +
+        location.host +
+        "/bare/",
+      proxy: "",
+    };
+
+    connection.setTransport("/epoxy/index.mjs", [{ wisp: store.wispurl }]);
+
+    let singleFrame = null;
+
+    function createSingleFrame() {
+      singleFrame = scramjet.createFrame();
+      singleFrame.frame.src = "/assets/pages/newtab.html";
+
+      singleFrame.addEventListener("urlchange", (e) => {
+        if (!e.url) return;
+        try {
+          const title = singleFrame.frame.contentWindow?.document?.title || new URL(e.url).hostname;
+          document.title = title || "Vapor scramjet";
+        } catch {
+          document.title = new URL(e.url).hostname || "Vapor scramjet";
+        }
+      });
+    }
+
+    function getTargetUrl() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("url")) {
+        return params.get("url");
+      }
+      if (window.location.hash) {
+        return decodeURIComponent(window.location.hash.substring(1));
+      }
+      return "https://google.com"; // default if none provided
+    }
+
+    window.addEventListener("load", () => {
+      const root = document.getElementById("app");
+      root.innerHTML = `
+        <div class="browser-container">
+          <div class="iframe-container" id="iframe-container"></div>
+        </div>
+      `;
+
+      createSingleFrame();
+      const container = document.getElementById("iframe-container");
+      if (singleFrame?.frame) {
+        container.appendChild(singleFrame.frame);
+        window.__CURRENT_FRAME = singleFrame;
+
+        // Navigate to URL from ?url= or #hash
+        singleFrame.go(getTargetUrl());
+      }
+    });
+  </script>
+</body>
+</html>

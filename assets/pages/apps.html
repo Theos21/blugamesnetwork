@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blu Apps section</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Russo+One&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="../js/panic-core.js" defer></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RGS73YQLRX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RGS73YQLRX');
+</script>
+<style>
+  :root {
+    --bg: #020402;
+    --accent: #00ff5e;
+    --tile-bg: #121212;
+    --tile-hover-bg: #1a1a1a;
+    --text-main: #eaffea;
+    --taskbar-height: 46px;
+    --tile-size: 230px;
+    --image-size: 180px;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', 'Russo One', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  #particles-js {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+  .games-section {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 0 0 0;
+    min-height: calc(100vh - var(--taskbar-height));
+    width: 100vw;
+    height: calc(100vh - var(--taskbar-height));
+  }
+  .section-title {
+    font-size: 3rem;
+    font-family: 'Russo One', 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 18px;
+    color: var(--accent);
+    user-select: none;
+    letter-spacing: 0.21em;
+    background: none;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+    text-shadow: none;
+    border-radius: 0;
+    padding-bottom: 0;
+  }
+  .search-container {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .search-bar {
+    width: 100%;
+    padding: 12px 40px 12px 36px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--tile-bg);
+    color: var(--text-main);
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    text-align: center;
+  }
+  .search-bar:focus {
+    background: var(--bg);
+  }
+  .search-container::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: var(--accent);
+  }
+  .games-list-main {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--tile-size), 1fr));
+    gap: 28px;
+    padding-bottom: var(--taskbar-height);
+    overflow-y: auto;
+    flex: 1 1 0;
+    justify-items: center;
+    align-items: center;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--bg);
+  }
+  .games-list-main::-webkit-scrollbar {
+    width: 8px;
+  }
+  .games-list-main::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 8px;
+  }
+  .games-list-main::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  .game-tile {
+    background: var(--tile-bg);
+    border-radius: 16px;
+    width: var(--tile-size);
+    height: var(--tile-size);
+    font-size: 1.07rem;
+    color: var(--text-main);
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid var(--accent);
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0;
+  }
+  .game-tile:hover, .game-tile:focus {
+    background: var(--tile-hover-bg);
+    color: var(--accent);
+    transform: scale(1.02);
+  }
+  .game-image-placeholder {
+    width: var(--image-size);
+    height: var(--image-size);
+    background: #1b1b1b;
+    border: 2.5px dashed var(--accent);
+    border-radius: 12px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 2.8rem;
+    font-weight: bold;
+  }
+  #scroll-to-top {
+    position: fixed;
+    right: 32px;
+    bottom: calc(var(--taskbar-height) + 32px);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    box-shadow: 0 2px 8px #191919;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.3rem;
+    cursor: pointer;
+    z-index: 12000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #scroll-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .window-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - var(--taskbar-height));
+    z-index: 9999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(10,10,10,0.92);
+    animation: popupFadeIn 0.35s cubic-bezier(.22,.7,.39,1.01);
+  }
+  @keyframes popupFadeIn {
+    from { opacity: 0; transform: scale(1.03) translateY(20px);}
+    to { opacity: 1; transform: scale(1) translateY(0);}
+  }
+  .window {
+    background: var(--tile-bg);
+    border-radius: 0;
+    width: 100vw;
+    height: calc(100vh - var(--taskbar-height));
+    max-width: 100vw;
+    max-height: calc(100vh - var(--taskbar-height));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: none;
+    position: relative;
+    animation: popupSlideIn 0.43s cubic-bezier(.22,.7,.39,1.01);
+  }
+  @keyframes popupSlideIn {
+    from { opacity: 0; transform: translateY(40px);}
+    to { opacity: 1; transform: translateY(0);}
+  }
+  .window-header {
+    background: var(--bg);
+    color: var(--accent);
+    padding: 8px 13px;
+    font-size: 1em;
+    font-family: 'Russo One', 'Orbitron', sans-serif;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--accent);
+    position: relative;
+  }
+  .window-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    text-align: center;
+  }
+  .window-controls {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    display: flex;
+    gap: 5px;
+  }
+  .window-btn {
+    background: var(--tile-bg);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    color: var(--accent);
+    font-size: 1em;
+    width: 24px; height: 24px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .window-btn:hover, .window-btn:focus {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .window-content {
+    flex: 1;
+    background: var(--bg);
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: var(--bg);
+    display: block;
+  }
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(7,7,7,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--tile-bg);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0);}
+    100% { transform: rotate(360deg);}
+  }
+  .taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: var(--taskbar-height);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    z-index: 10000;
+    padding: 0 20px;
+    transition: transform 0.3s;
+    transform: translateY(100%);
+    justify-content: center;
+  }
+  .taskbar.active {
+    transform: translateY(0);
+  }
+  .taskbar-items {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    width: auto;
+    justify-content: center;
+    align-items: center;
+  }
+  .taskbar-item {
+    background: var(--tile-bg);
+    border-radius: 6px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 8px 15px;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    min-width: 90px;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .taskbar-item:hover, .taskbar-item.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .popup-content h2 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+  }
+  @media (max-width: 1300px) {
+    .games-list-main { max-width: 100vw; }
+  }
+  @media (max-width: 900px) {
+    .games-list-main { grid-template-columns: repeat(auto-fit, minmax(var(--tile-size), 1fr)); }
+    .window-title { max-width: 100px;}
+    .section-title { font-size: 2.1rem; }
+    .game-image-placeholder { width: 90vw; height: 90vw; max-width: 120px; max-height: 120px; }
+  }
+  @media (max-width: 600px) {
+    .section-title { font-size: 1.2rem;}
+    .search-bar { font-size: 0.9rem; padding: 7px 28px 7px 24px;}
+    .game-tile { font-size: 0.9rem; }
+    .window-header { font-size: 0.9em; padding: 7px 8px; }
+    #scroll-to-top { right: 12px; bottom: calc(var(--taskbar-height) + 12px); }
+  }
+</style>
+</head>
+<body>
+<div id="particles-js"></div>
+<div class="games-section">
+  <div style="width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <h1 class="section-title"><span class="glow">BLU APPS</span></h1>
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search Apps..." id="game-search" oninput="filterGames()"/>
+    </div>
+  </div>
+  <div class="games-list-main" id="games-list-main"></div>
+</div>
+<button id="scroll-to-top" title="Back to Top">&#8593;</button>
+<div class="window-container" id="window-container"></div>
+<div class="taskbar" id="taskbar">
+  <div class="taskbar-items" id="taskbar-items"></div>
+</div>
+<div id="popup" class="popup">
+    <div class="popup-content">
+</div>
+
+<script>
+  const games = [
+    { title: "CapCut", url: "../../s/embed.html#https://capcut.com", image: "../images/apps/capcut.png", file: "../../s/embed.html#https://capcut.com" },
+    { title: "Code Editor", url: "/a/zxscode.html", image: "../images/apps/codeeditor.png", file: "/a/zxscode.html" },
+    { title: "Discord", url: "/s/embed.html#https://discord.com", image: "../images/apps/discord.png", file: "/s/embed.html#https://discord.com" },
+    { title: "ESPN", url: "/s/embed.html#https://espn.com", image: "../images/apps/ESPN.png", file: "/s/embed.html#https://espn.com" },
+    { title: "Facebook", url: "/s/embed.html#https://facebook.com", image: "../images/apps/facebook.png", file: "/s/embed.html#https://facebook.com" },
+    { title: "Hulu", url: "/s/embed.html#https://hulu.com", image: "../images/apps/hulu.png", file: "/s/embed.html#https://hulu.com" },
+    { title: "Instagram", url: "/s/embed.html#https://instagram.com", image: "../images/apps/instagram.png", file: "/s/embed.html#https://instagram.com" },
+    { title: "Invidious", url: "/s/embed.html#https://inv.nadeko.net", image: "../images/apps/invidious.png", file: "/s/embed.html#https://inv.nadeko.net" },
+    { title: "LinkedIn", url: "/s/embed.html#https://linkedin.com", image: "../images/apps/linkedin.png", file: "/s/embed.html#https://linkedin.com" },
+    { title: "Movies", url: "/a/movies.html", image: "../images/apps/movies.png", file: "/a/movies.html" },
+    { title: "Music", url: "/a/musicplayer.html", image: "../images/apps/music.png", file: "/a/musicplayer.html" },
+    { title: "Netflix", url: "/s/embed.html#https://netflix.com", image: "../images/apps/Netflix.png", file: "/s/embed.html#https://netflix.com" },
+    { title: "Pinterest", url: "/s/embed.html#https://pintrest.com", image: "../images/apps/pinterest-logo.png", file: "/s/embed.html#https://pintrest.com" },
+    { title: "Reddit", url: "/s/embed.html#https://redd.it", image: "../images/apps/Reddit.png", file: "/s/embed.html#https://redd.it" },
+    { title: "Snapchat", url: "/s/embed.html#https://snapchat.com", image: "../images/apps/snapchat.png", file: "/s/embed.html#https://snapchat.com" },
+    { title: "Soundboard", url: "/a/SoundBoard.html", image: "../images/apps/soundboard.png", file: "/a/SoundBoard.html" },
+    { title: "Spotify", url: "/s/embed.html#https://spotify.com", image: "../images/apps/spotify.png", file: "/s/embed.html#https://spotify.com" },
+    { title: "Telegram", url: "/s/embed.html#https://telegram.com", image: "../images/apps/telegram.png", file: "/s/embed.html#https://telegram.com" },
+    { title: "TextNow", url: "/s/embed.html#https://textnow.com", image: "../images/apps/textnow.png", file: "/s/embed.html#https://textnow.com" },
+    { title: "TikTok", url: "/s/embed.html#https://tiktok.com", image: "../images/apps/TikTok_Logo.png", file: "/s/embed.html#https://tiktok.com" },
+    { title: "Wikipedia", url: "/s/embed.html#https://wikipedia.com", image: "../images/apps/wikipedia.png", file: "/s/embed.html#https://wikipedia.com" },
+    { title: "X", url: "/s/embed.html#https://x.com", image: "../images/apps/x.png", file: "/s/embed.html#https://x.com" },
+    { title: "Xbox Cloud Gaming", url: "/s/embed.html#https://xbox.com/play", image: "../images/apps/xboxcloudgaming.png", file: "/s/embed.html#https://xbox.com/play" },
+    { title: "ZXS AI", url: "/a/zxsai.html", image: "../images/apps/zxsai.png", file: "/a/zxsai.html" },
+    { title: "ZXS Chat", url: "/a/zxschat.html", image: "../images/apps/zxschat.png", file: "/a/zxschat.html" },
+    { title: "ZXS Emulator", url: "/a/zxsem.html", image: "../images/apps/zxsemulator.png", file: "/a/zxsem.html" }
+  ].sort((a, b) => a.title.localeCompare(b.title));
+
+  let windows = [];
+  let activeWindowId = null;
+  let windowZIndex = 1000;
+  let windowIdCounter = 0;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    particlesJS('particles-js', {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 }},
+        "color": { "value": "#00ff5e" },
+        "shape": { "type": "circle", "stroke": { "width": 0, "color": "#000" }, "polygon": { "nb_sides": 5 }},
+        "opacity": { "value": 0.5 },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#00ff5e", "opacity": 0.19, "width": 1 },
+        "move": { "enable": true, "speed": 2.5 }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        }
+      },
+      "retina_detect": true
+    });
+    renderGames();
+  });
+
+  function renderGames() {
+    const container = document.getElementById('games-list-main');
+    container.innerHTML = '';
+    games.forEach(game => {
+      const tile = document.createElement('div');
+      tile.className = 'game-tile';
+      tile.tabIndex = 0;
+      let imageHTML = '';
+      if (game.image) {
+        imageHTML = `<img src="${game.image}" alt="${game.title}" style="width:180px;height:180px;border-radius:12px;margin-top:18px;margin-bottom:8px;border:2.5px solid var(--accent);object-fit:cover;">`;
+      } else {
+        imageHTML = `<div class="game-image-placeholder">APP</div>`;
+      }
+      tile.innerHTML = `${imageHTML}`;
+      tile.setAttribute('data-title', game.title.toLowerCase());
+      tile.onclick = () => {
+        openGame(game.url, game.title);
+        document.getElementById('scroll-to-top').classList.remove('show');
+      };
+      tile.onkeydown = function(e) {
+        if (e.key === 'Enter') {
+          openGame(game.url, game.title);
+          document.getElementById('scroll-to-top').classList.remove('show');
+        }
+      };
+      container.appendChild(tile);
+    });
+  }
+
+  function filterGames() {
+    const searchInput = document.getElementById('game-search').value.toLowerCase();
+    const tiles = document.querySelectorAll('.game-tile');
+    tiles.forEach(tile => {
+      const match = tile.getAttribute('data-title').includes(searchInput);
+      tile.style.display = match ? 'flex' : 'none';
+    });
+  }
+
+  function createWindow(url, title) {
+    const windowId = 'window-' + windowIdCounter++;
+    const windowContainer = document.getElementById('window-container');
+    const windowElement = document.createElement('div');
+    windowElement.className = 'window';
+    windowElement.id = windowId;
+    windowElement.dataset.title = title;
+    windowElement.innerHTML = `
+      <div class="window-header" id="${windowId}-header">
+        <div class="window-title">${title}</div>
+        <div class="window-controls">
+          <button class="window-btn" onclick="minimizeWindow('${windowId}')" title="Minimize">_</button>
+          <button class="window-btn" onclick="closeWindow('${windowId}')" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="loading-overlay" id="${windowId}-loading">
+          <div class="loading-spinner"></div>
+        </div>
+        <iframe src="${url}" onload="hideLoading('${windowId}-loading')"></iframe>
+      </div>
+    `;
+    windowContainer.innerHTML = '';
+    windowContainer.appendChild(windowElement);
+    windowContainer.style.display = 'flex';
+    document.getElementById('taskbar').classList.add('active');
+    windows = [{id: windowId, title, minimized: false}];
+    activateWindow(windowId);
+    addToTaskbar(windowId, title);
+    document.body.style.overflow = 'hidden';
+    return windowId;
+  }
+
+  function hideLoading(loadingId) {
+    const loadingElement = document.getElementById(loadingId);
+    if (loadingElement) loadingElement.style.display = 'none';
+  }
+
+  function activateWindow(windowId) {
+    windows.forEach(win => {
+      const el = document.getElementById(win.id);
+      if (el) { el.style.zIndex = 1000; el.classList.remove('active'); el.style.display = ''; }
+      const tb = document.getElementById('taskbar-'+win.id);
+      if (tb) tb.classList.remove('active');
+    });
+    const winEl = document.getElementById(windowId);
+    if (winEl) {
+      winEl.style.zIndex = ++windowZIndex;
+      winEl.classList.add('active');
+      activeWindowId = windowId;
+      const tb = document.getElementById('taskbar-'+windowId);
+      if (tb) tb.classList.add('active');
+    }
+  }
+
+  function closeWindow(windowId) {
+    const el = document.getElementById(windowId);
+    if (el) el.remove();
+    windows = [];
+    const tb = document.getElementById('taskbar-'+windowId);
+    if (tb) tb.remove();
+    document.getElementById('window-container').style.display = 'none';
+    document.getElementById('taskbar').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function minimizeWindow(windowId) {
+    const el = document.getElementById(windowId);
+    if (el) el.style.display = 'none';
+    const winIdx = windows.findIndex(w => w.id === windowId);
+    if (winIdx !== -1) windows[winIdx].minimized = true;
+    document.getElementById('window-container').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function addToTaskbar(windowId, title) {
+    const taskbarItems = document.getElementById('taskbar-items');
+    taskbarItems.innerHTML = '';
+    const item = document.createElement('div');
+    item.className = 'taskbar-item active';
+    item.id = 'taskbar-' + windowId;
+    item.textContent = title;
+    item.onclick = function() {
+      const el = document.getElementById(windowId);
+      if (!el || el.style.display === 'none') {
+        document.getElementById('window-container').style.display = 'flex';
+        el.style.display = '';
+        activateWindow(windowId);
+        document.body.style.overflow = 'hidden';
+      } else {
+        minimizeWindow(windowId);
+      }
+    };
+    taskbarItems.appendChild(item);
+  }
+
+  function openPopup(gameTitle) {
+    document.getElementById('popup-title').textContent = gameTitle;
+    document.getElementById('popup').style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+  }
+
+  function openGame(url, title) {
+    createWindow(url, title);
+  }
+
+  document.getElementById('window-container').addEventListener('mousedown', function(e) {
+    let win = e.target.closest('.window');
+    if (win) activateWindow(win.id);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && activeWindowId) closeWindow(activeWindowId);
+  });
+
+  const scrollToTopBtn = document.getElementById('scroll-to-top');
+  const gamesListMain = document.getElementById('games-list-main');
+
+  function checkScrollBtn() {
+    if (gamesListMain.scrollTop > 200) {
+      scrollToTopBtn.classList.add('show');
+    } else {
+      scrollToTopBtn.classList.remove('show');
+    }
+  }
+
+  gamesListMain.addEventListener('scroll', checkScrollBtn);
+  scrollToTopBtn.addEventListener('click', function(){
+    gamesListMain.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  document.querySelector('.games-section').style.justifyContent = 'center';
+  document.querySelector('.games-section').style.alignItems = 'center';
+</script>
+</body>
+</html>

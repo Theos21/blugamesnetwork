@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/assets/js/panic-core.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>404 Error</title>
+  <style>
+    :root {
+      --neon-green: #39FF14;
+      --bg-color: #000000;
+      --font: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--neon-green);
+      font-family: var(--font);
+      font-size: clamp(16px, 2vw, 20px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-shadow:
+        0 0 5px var(--neon-green),
+        0 0 10px var(--neon-green);
+    }
+
+    .glitch {
+      position: relative;
+      display: inline-block;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      color: var(--neon-green);
+    }
+
+    .glitch::before {
+      top: -2px;
+      text-shadow: -2px 0 #00ffff;
+      animation: glitch-anim-1 1s infinite linear alternate-reverse;
+    }
+
+    .glitch::after {
+      top: 2px;
+      text-shadow: 2px 0 #ff0055;
+      animation: glitch-anim-2 1.2s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-anim-1 {
+      0% { clip: rect(0, 9999px, 0, 0); transform: translate(-2px, -1px); }
+      50% { clip: rect(10px, 9999px, 90px, 0); transform: translate(2px, 1px); }
+      100% { clip: rect(85px, 9999px, 140px, 0); transform: translate(0, 0); }
+    }
+
+    @keyframes glitch-anim-2 {
+      0% { clip: rect(5px, 9999px, 5px, 0); transform: translate(2px, 0); }
+      50% { clip: rect(20px, 9999px, 60px, 0); transform: translate(-1px, 1px); }
+      100% { clip: rect(10px, 9999px, 30px, 0); transform: translate(0, 0); }
+    }
+
+    p {
+      max-width: 600px;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 6px var(--neon-green);
+    }
+
+    button {
+      background: transparent;
+      color: var(--neon-green);
+      border: 2px solid var(--neon-green);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-family: var(--font);
+      cursor: pointer;
+      text-shadow: 0 0 6px var(--neon-green);
+      box-shadow: 0 0 10px var(--neon-green);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    button:hover {
+      background: var(--neon-green);
+      color: var(--bg-color);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="glitch" data-text="404 Error">404 Error</h1>
+  <p>yo ma heart ts page dont exist gng. on some emerson type shit 😭</p>
+  <p>if you were using the proxy press retry</p>
+  <button onclick="location.reload()">↻ Retry</button>
+</body>
+</html>

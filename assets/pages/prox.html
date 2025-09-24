@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJ blu</title>
+  <style>
+    :root {
+      --bg: #0e1b14;
+      --secondary-bg: #1a2f25;
+      --third-bg: #244f36;
+      --fourth-bg: #1a3a2a;
+      --primary: #69c27a;
+      --secondary: #58b075;
+      --text-color: #e6f7ea;
+      --button-bg: #254e38;
+      --button-hover: #315c45;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--text-color);
+      background: linear-gradient(135deg, var(--bg) 0%, var(--secondary-bg) 40%, var(--third-bg) 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 30s ease infinite;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .browser-container {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.8rem;
+      height: 58px;
+      background: rgba(0,0,0,0.08);
+    }
+
+    .nav button {
+      color: var(--text-color);
+      background: var(--button-bg);
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: transform 0.2s ease, background 0.2s ease;
+      min-width: 44px;
+      height: 40px;
+    }
+    .nav button:hover { background: var(--button-hover); transform: translateY(-1px); }
+
+    .bar {
+      flex: 1;
+      min-width: 0;
+      height: 40px;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: var(--button-bg);
+      color: var(--text-color);
+      font-size: 1.0rem;
+    }
+    .bar:focus { background: var(--button-hover); }
+
+    .iframe-container {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+      background: #fff;
+      animation: fadeIn 0.5s ease both;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+
+<body>
+  <div class="browser-container">
+    <div class="nav">
+      <button onclick="goBack()">⟵</button>
+      <button onclick="goForward()">⟶</button>
+      <button onclick="reloadFrame()">⟳</button>
+      <input class="bar" id="address-bar" autocomplete="off" placeholder="Enter URL or search"
+        onkeyup="event.keyCode === 13 && handleSubmit()" />
+    </div>
+    <div class="iframe-container">
+      <iframe id="uv-frame" src="../pages/newtab.html"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const iframe = document.getElementById("uv-frame");
+    const addressBar = document.getElementById("address-bar");
+
+    function handleSubmit() {
+      let url = addressBar.value.trim();
+      if (!url) return;
+
+      // Detect search vs URL
+      if (!url.startsWith("http") && !url.includes(".")) {
+        url = "https://duckduckgo.com/?q=" + encodeURIComponent(url);
+      } else if (!url.startsWith("http")) {
+        url = "https://" + url;
+      }
+
+      iframe.src = "../../s/embed.html#" + url;
+    }
+
+    function reloadFrame() {
+      iframe.src = iframe.src;
+    }
+
+    function goBack() {
+      iframe.contentWindow.history.back();
+    }
+
+    function goForward() {
+      iframe.contentWindow.history.forward();
+    }
+  </script>
+</body>
+</html>
