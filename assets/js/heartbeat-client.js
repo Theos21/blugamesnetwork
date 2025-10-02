@@ -1,7 +1,6 @@
-<!-- assets/js/heartbeat-client.js -->
 <script>
 (function(){
-  // Persisted device/browser id (same logic as gate.html)
+  // Generate/persist unique browser id
   const getClientId = () => {
     let id = localStorage.getItem('clientId');
     if (!id) {
@@ -13,29 +12,31 @@
 
   const clientId = getClientId();
 
-  async function ping() {
+  async function heartbeat() {
     try {
-      const res = await fetch('/.netlify/functions/heartbeat', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
+      const res = await fetch("/.netlify/functions/heartbeat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ clientId })
       });
 
-      if (!res.ok) {
-        // 401/403 => token invalid or key inactive/deleted
-        location.href = '/gate.html';
+      const data = await res.json();
+
+      if (!data.ok) {
+        alert("⛔ Your access has been revoked.");
+        window.location.href = "/gate.html";
       }
-    } catch (e) {
-      // Network errors: ignore or decide to redirect if you prefer
-      // console.warn('heartbeat failed', e);
+    } catch (err) {
+      console.error("Heartbeat error:", err);
     }
   }
 
-  // First ping ~3s after load, then every 30s
-  setTimeout(ping, 3000);
-  setInterval(ping, 30000);
+  // Run heartbeat every 20s
+  setInterval(heartbeat, 20000);
+  // Run immediately on page load
+  heartbeat();
 
-  // Mark session inactive on unload (optional)
+  // Optional: mark session inactive on unload
   window.addEventListener('beforeunload', () => {
     try {
       navigator.sendBeacon?.(
