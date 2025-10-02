@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Access Gate</title>
+<style>
+  body{font-family:system-ui;background:#111;color:#0f0;display:grid;place-items:center;height:100vh;margin:0}
+  form{display:flex;gap:8px}input{padding:10px;border:1px solid #0f0;background:#000;color:#0f0}
+  #status{margin-top:12px;color:#f66}
+</style>
+<h1>Enter Access Key</h1>
+<form id="gate"><input id="key" placeholder="Enter key" required autofocus><button>Enter</button></form>
+<div id="status"></div>
+<script>
+  const clientId = localStorage.getItem('clientId') || (crypto.randomUUID?.() || (Date.now()+'-'+Math.random()));
+  localStorage.setItem('clientId', clientId);
+
+  document.getElementById('gate').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = document.getElementById('key').value.trim();
+    const r = await fetch('/.netlify/functions/key-auth', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ key, clientId })
+    });
+    if (r.ok) {
+      setInterval(() => {
+        fetch('/.netlify/functions/heartbeat', {
+          method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify({ clientId })
+        });
+      }, 30000);
+      location.href = '/';
+    } else {
+      document.getElementById('status').textContent = await r.text() || 'Access denied';
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    navigator.sendBeacon?.('/.netlify/functions/heartbeat', JSON.stringify({ clientId, inactive:true }));
+  });
+</script>

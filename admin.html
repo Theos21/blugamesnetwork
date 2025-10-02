@@ -1,0 +1,144 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin</title>
+<style>
+  body{font-family:system-ui;background:#111;color:#0f0;padding:20px;margin:0}
+  table{border-collapse:collapse;width:100%} td,th{border:1px solid #0f0;padding:6px;font-size:14px}
+  input,button{background:#000;color:#0f0;border:1px solid #0f0;padding:6px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  h1,h2{margin:8px 0}
+</style>
+
+<h1>👑 Admin Panel</h1>
+<p>Login with an admin key at <a href="/gate.html">/gate.html</a> first.</p>
+
+<div class="row">
+  <input id="newKey" placeholder="New key">
+  <input id="newLabel" placeholder="Label">
+  <button onclick="addKey()">Add Key</button>
+  <button onclick="refresh()">Refresh</button>
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+
+<h2>Keys</h2>
+<table id="keys">
+  <tr>
+    <th>Key</th><th>Label</th><th>Active</th><th>Admin</th>
+    <th>Claimed By</th><th>First Claimed</th><th>Last Used</th><th>Total Uses</th><th>Actions</th>
+  </tr>
+</table>
+
+<h2>Online (last 2m)</h2>
+<table id="online">
+  <tr><th>Session ID</th><th>Key</th><th>Client</th><th>Started</th><th>Last Seen</th><th>IP</th><th>Action</th></tr>
+</table>
+
+<script>
+let _keys=[], _online=[];
+
+async function refresh(){
+  const r = await fetch('/.netlify/functions/admin');
+  const data = await r.json();
+  if (!data.ok) { alert(data.error || 'Unauthorized'); return; }
+  _keys = data.keys || []; _online = data.online || [];
+  renderKeys(); renderOnline();
+}
+
+function renderKeys(){
+  const kt = document.getElementById('keys');
+  kt.innerHTML = `
+    <tr>
+      <th>Key</th><th>Label</th><th>Active</th><th>Admin</th>
+      <th>Claimed By</th><th>First Claimed</th><th>Last Used</th><th>Total Uses</th><th>Actions</th>
+    </tr>`;
+  _keys.forEach(k=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${k.key}</td>
+      <td>${k.label||''}</td>
+      <td>${k.is_active}</td>
+      <td>${k.is_admin}</td>
+      <td>${k.claimed_by||''}</td>
+      <td>${k.first_claimed_at||''}</td>
+      <td>${k.last_used_at||''}</td>
+      <td>${k.total_uses||0}</td>
+      <td>
+        <button onclick="toggleActive('${k.key}', ${!k.is_active})">${k.is_active?'Deactivate':'Activate'}</button>
+        <button onclick="unclaimKey('${k.key}')">Unclaim</button>
+        <button onclick="banKey('${k.key}')">Ban</button>
+        <button onclick="removeKey('${k.key}')">Delete</button>
+      </td>`;
+    kt.appendChild(tr);
+  });
+}
+
+function renderOnline(){
+  const ot = document.getElementById('online');
+  ot.innerHTML = '<tr><th>Session ID</th><th>Key</th><th>Client</th><th>Started</th><th>Last Seen</th><th>IP</th><th>Action</th></tr>';
+  _online.forEach(s=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${s.id}</td>
+      <td>${s.key}</td>
+      <td>${s.client_id}</td>
+      <td>${s.started_at}</td>
+      <td>${s.last_seen}</td>
+      <td>${s.ip||''}</td>
+      <td><button onclick="kick('${s.id}')">Kick</button></td>`;
+    ot.appendChild(tr);
+  });
+}
+
+async function addKey(){
+  const key = document.getElementById('newKey').value.trim();
+  const label = document.getElementById('newLabel').value.trim();
+  if(!key) return alert('Enter key');
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'add_key', key, label }) });
+  refresh();
+}
+
+async function removeKey(key){
+  if(!confirm('Delete key '+key+'?')) return;
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'remove_key', key }) });
+  refresh();
+}
+
+async function toggleActive(key, is_active){
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'toggle_active', key, is_active }) });
+  refresh();
+}
+
+async function unclaimKey(key){
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'unclaim_key', key }) });
+  refresh();
+}
+
+async function banKey(key){
+  if(!confirm('Ban key '+key+' and kick everyone?')) return;
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'ban_key', key }) });
+  refresh();
+}
+
+async function kick(session_id){
+  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'kick_session', session_id }) });
+  refresh();
+}
+
+function exportCSV(){
+  let csv = "Keys:\nkey,label,active,admin,claimed_by,first_claimed,last_used,total_uses,created_at\n";
+  _keys.forEach(k=>{
+    csv += `${k.key},${k.label||''},${k.is_active},${k.is_admin},${k.claimed_by||''},${k.first_claimed_at||''},${k.last_used_at||''},${k.total_uses||0},${k.created_at||''}\n`;
+  });
+  csv += "\nOnline:\nsession_id,key,client_id,started_at,last_seen,ip\n";
+  _online.forEach(s=>{
+    csv += `${s.id},${s.key},${s.client_id},${s.started_at},${s.last_seen},${s.ip||''}\n`;
+  });
+  const blob = new Blob([csv],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "keys_report.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+refresh();
+</script>
