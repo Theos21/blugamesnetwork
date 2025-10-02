@@ -109,7 +109,19 @@ async function toggleActive(key, is_active){
 }
 
 async function unclaimKey(key){
-  await fetch('/.netlify/functions/admin', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'unclaim_key', key }) });
+  const r = await fetch('/.netlify/functions/admin', {
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body: JSON.stringify({ action:'unclaim_key', key })
+  });
+
+  let data = {};
+  try { data = await r.json(); } catch {}
+
+  if (!r.ok || !data.ok) {
+    alert('Unclaim failed: ' + (data.error || r.status));
+    return;
+  }
   refresh();
 }
 
@@ -142,3 +154,4 @@ function exportCSV(){
 
 refresh();
 </script>
+  <script src="/assets/js/heartbeat-client.js" defer></script>

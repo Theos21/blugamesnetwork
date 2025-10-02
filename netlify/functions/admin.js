@@ -30,9 +30,20 @@ export default async (req) => {
         await supabase.from("keys").update({ is_active: !!body.is_active }).eq("key", body.key);
         return json({ ok:true });
 
-      case "unclaim_key":
-        await supabase.from("keys").update({ claimed_by: null, first_claimed_at: null }).eq("key", body.key);
-        return json({ ok:true });
+      case "unclaim_key": {
+  const { key } = body;
+  if (!key) return json({ ok:false, error:"Missing key" }, 400);
+
+  // clear claimed_by + first_claimed_at
+  const { error: e1 } = await supabase
+    .from("keys")
+    .update({ claimed_by: null, first_claimed_at: null })
+    .eq("key", key);
+
+  if (e1) return json({ ok:false, error:e1.message }, 500);
+  return json({ ok:true });
+}
+
 
       case "kick_session":
         await supabase.from("sessions").update({ is_active:false }).eq("id", body.session_id);
